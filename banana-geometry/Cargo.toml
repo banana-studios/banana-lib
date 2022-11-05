@@ -1,0 +1,11 @@
+[package]
+edition = "2021"
+name    = "banana-geometry"
+version = "0.1.0"
+
+[features]
+serialize = ["serde"]
+
+[dependencies]
+banana-grid = { path = "../banana-grid" }
+serde       = { version = "1", features = ["derive"], optional = true }
