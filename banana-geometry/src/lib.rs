@@ -1,10 +1,10 @@
 use banana_grid::prelude::IVec2;
 
-mod rect;
-use rect::*;
+mod shapes;
+use shapes::*;
 
 pub mod prelude {
-    pub use crate::rect::*;
+    pub use crate::shapes::*;
 }
 
 pub trait ShapeClone {

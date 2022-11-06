@@ -2,6 +2,12 @@ use banana_grid::prelude::{GridPoint, IVec2, Size2d};
 use bitmask_enum::bitmask;
 use std::collections::HashSet;
 
+mod arithmitic;
+mod iter;
+
+pub use arithmitic::*;
+pub use iter::*;
+
 #[bitmask(u8)]
 pub enum GridCorner {
     TopLeft,
@@ -184,72 +190,6 @@ impl Rect {
         F: FnMut(IVec2),
     {
         RectIter::new(self.min, self.max).for_each(f);
-    }
-}
-
-impl std::ops::Add<Rect> for Rect {
-    type Output = Rect;
-    fn add(mut self, rhs: Rect) -> Rect {
-        self.min += rhs.min;
-        self.max += rhs.max;
-        self
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////
-/// Rect Iter
-///////////////////////////////////////////////////////////////////////////
-
-#[derive(Debug, Clone)]
-pub struct RectIter {
-    curr: IVec2,
-    size: IVec2,
-
-    /// The minimum corner point of the rect.
-    pub min: IVec2,
-    /// The maximum corner point of the rect.
-    pub max: IVec2,
-}
-
-impl RectIter {
-    pub fn new(min: impl Size2d, max: impl Size2d) -> Self {
-        let min = min.as_ivec2();
-        let max = max.as_ivec2();
-        let size = max - min;
-        Self { min, max, size, curr: IVec2::ZERO }
-    }
-}
-
-impl Iterator for RectIter {
-    type Item = IVec2;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.curr.cmpge(self.max).any() {
-            return None;
-        }
-
-        let p = self.curr;
-        self.curr.x += 1;
-        if self.curr.x == self.size.x {
-            self.curr.x = 0;
-            self.curr.y += 1;
-        }
-        Some(self.min + p)
-    }
-}
-
-impl IntoIterator for Rect {
-    type Item = IVec2;
-    type IntoIter = RectIter;
-
-    fn into_iter(self) -> Self::IntoIter {
-        RectIter::new(self.min, self.max)
-    }
-}
-
-impl From<Rect> for RectIter {
-    fn from(rect: Rect) -> Self {
-        rect.into_iter()
     }
 }
 
