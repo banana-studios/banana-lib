@@ -31,6 +31,7 @@ serialize = ["banana-geometry/serialize", "banana-grid/serialize", "banana-direc
 
 [dependencies]
 # locals
+banana-commons   = { path = "banana-commons", version = "~0.1" }
 banana-direction = { path = "banana-direction", version = "~0.1" }
 banana-geometry  = { path = "banana-geometry", version = "~0.1" }
 banana-grid      = { path = "banana-grid", default-features = false, version = "~0.1" }

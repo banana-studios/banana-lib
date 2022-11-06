@@ -1,6 +1,9 @@
 use crate::prelude::*;
 use banana_grid::prelude::{GridPoint, IVec2};
 
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
+
 pub const NUM_ORDINAL_DIRECTIONS: usize = 4;
 pub const ALL_ORDINAL_DIRECTION_BITMAP_RAW: u8 = (1 << Direction::NorthEast as usize)
     | (1 << Direction::SouthEast as usize)

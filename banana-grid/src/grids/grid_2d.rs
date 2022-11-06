@@ -16,6 +16,10 @@ pub struct Grid2D<T> {
 }
 
 impl<T: Copy> GridLike<T> for Grid2D<T> {
+    ///////////////////////////////////////////////////////////////////////////
+    // New Functionality
+    ///////////////////////////////////////////////////////////////////////////
+
     #[inline(always)]
     fn new<S>(size: S, default_value: T) -> Self
     where
@@ -25,6 +29,39 @@ impl<T: Copy> GridLike<T> for Grid2D<T> {
         Self {
             size: size.as_uvec2(),
             data: ndarray::Array2::from_elem(size.as_uarray(), default_value),
+        }
+    }
+
+    #[inline(always)]
+    fn new_grid_map<G, U, F>(grid: G, f: F) -> Self
+    where
+        U: Clone,
+        Self: Sized,
+        G: GridLike<U>,
+        F: FnMut(&U) -> T,
+    {
+        Self {
+            size: grid.size(),
+            data: Array2::from_shape_vec(
+                Size2d::as_uarray(&grid.size()),
+                grid.data().iter().map(f).collect(),
+            )
+            .unwrap(),
+        }
+    }
+
+    #[inline(always)]
+    fn new_fn<S, F>(size: S, mut f: F) -> Self
+    where
+        Self: Sized,
+        S: Size2d,
+        F: FnMut(IVec2) -> T,
+    {
+        Self {
+            data: ndarray::Array2::from_shape_fn(size.as_uarray(), |a| {
+                f(Size2d::as_ivec2(&a))
+            }),
+            size: size.as_uvec2(),
         }
     }
 
@@ -42,18 +79,34 @@ impl<T: Copy> GridLike<T> for Grid2D<T> {
     }
 
     #[inline(always)]
-    fn new_fn<S, F>(size: S, mut f: F) -> Self
+    fn new_clone<S>(size: S, value: T) -> Self
     where
-        Self: Sized,
+        T: Clone,
         S: Size2d,
-        F: FnMut(IVec2) -> T,
     {
         Self {
-            data: ndarray::Array2::from_shape_fn(size.as_uarray(), |a| {
-                f(Size2d::as_ivec2(&a))
-            }),
             size: size.as_uvec2(),
+            data: ndarray::Array2::from_elem(size.as_uarray(), value),
         }
+    }
+
+    #[inline(always)]
+    fn new_copy<S>(size: S, value: T) -> Self
+    where
+        T: Copy,
+        S: Size2d,
+    {
+        Self {
+            size: size.as_uvec2(),
+            data: ndarray::Array2::from_elem(size.as_uarray(), value),
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    #[inline]
+    fn data(&self) -> &[T] {
+        self.data.as_slice().unwrap()
     }
 
     #[inline]
@@ -108,14 +161,14 @@ impl<T: Copy> GridLike<T> for Grid2D<T> {
         self.data.get_mut(index.as_uarray())
     }
 
-    fn get_unchecked<I>(&self, index: I) -> &T
+    fn get_checked<I>(&self, index: I) -> &T
     where
         I: GridPoint,
     {
         self.data.index(index.as_uarray())
     }
 
-    fn get_mut_unchecked<I>(&mut self, index: I) -> &mut T
+    fn get_mut_checked<I>(&mut self, index: I) -> &mut T
     where
         I: GridPoint,
     {
@@ -157,22 +210,6 @@ impl<T> Grid2D<T> {
     {
         ndarray::Array2::from_shape_vec(shape, data)
             .map(|data| Self { data, size: shape.as_uvec2() })
-    }
-
-    pub fn new_fn<Sh, F>(shape: Sh, f: F) -> Self
-    where
-        T: Clone,
-        Sh: Size2d + ShapeBuilder<Dim = Ix2>,
-        F: FnMut((usize, usize)) -> T,
-    {
-        Self { data: ndarray::Array2::from_shape_fn(shape, f), size: shape.as_uvec2() }
-    }
-
-    pub fn new_grid_map<U, F>(grid: Grid2D<U>, f: F) -> Self
-    where
-        F: FnMut(&U) -> T,
-    {
-        Self { data: grid.data.map(f), size: grid.size }
     }
 
     pub fn new_grid_map_ref<U, F>(grid: &Grid2D<U>, f: F) -> Self
@@ -231,9 +268,11 @@ impl<T> Grid2D<T> {
     pub fn map<U, F>(self, f: F) -> Self
     where
         U: Clone,
+        T: std::marker::Copy,
         F: for<'a> FnMut(&'a T) -> T,
     {
         Self::new_grid_map(self, f)
+        // Self
     }
 
     pub fn map_ref<U, Sh, F>(&self, f: F) -> Grid2D<U>

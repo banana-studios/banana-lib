@@ -3,6 +3,8 @@
 
 /// prelude
 pub mod prelude {
+    pub use banana_commons::prelude::*;
+    pub use banana_direction::prelude::*;
     pub use banana_geometry::prelude::*;
     pub use banana_grid::prelude::*;
 }

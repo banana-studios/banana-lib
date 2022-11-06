@@ -30,18 +30,14 @@ impl Axis {
         }
     }
 
-    #[inline(always)]
-    pub fn try_new_size<S>(
+    pub fn try_new_size(
         self,
         this_axis: u32,
         other_axis: u32,
-    ) -> Result<UVec2, DimensionTooLargeForSize>
-    where
-        S: Size2d,
-    {
+    ) -> Result<UVec2, DimensionTooLargeForSize> {
         match self {
-            Axis::X => S::try_new(this_axis, other_axis),
-            Axis::Y => S::try_new(other_axis, this_axis),
+            Axis::X => UVec2::try_new(this_axis, other_axis),
+            Axis::Y => UVec2::try_new(other_axis, this_axis),
         }
     }
 

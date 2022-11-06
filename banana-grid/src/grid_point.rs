@@ -1,40 +1,6 @@
 use crate::prelude::*;
 
 ////////////////////////////////////////////////////////////
-// Point Iter
-////////////////////////////////////////////////////////////
-
-pub struct PointIterRowMajor {
-    coord: IVec2,
-    size: UVec2,
-}
-
-impl PointIterRowMajor {
-    pub fn new(size: impl Size2d) -> Self {
-        Self { size: size.as_uvec2(), coord: IVec2::new(0, 0) }
-    }
-}
-
-impl Iterator for PointIterRowMajor {
-    type Item = IVec2;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.coord.y == self.size.height() as i32 {
-            return None;
-        }
-        let coord = self.coord;
-        self.coord.x += 1;
-
-        if self.coord.x == self.size.width() as i32 {
-            self.coord.x = 0;
-            self.coord.y += 1;
-        }
-
-        Some(coord)
-    }
-}
-
-////////////////////////////////////////////////////////////
 // Grid Point
 ////////////////////////////////////////////////////////////
 
@@ -103,6 +69,27 @@ pub trait GridPoint: Clone + Copy {
         let y = self.y();
 
         x >= 0 && y >= 0 && x < size.width() as i32 && y < size.height() as i32
+    }
+
+    #[inline(always)]
+    fn normalize_part(value: i32, size: u32) -> i32 {
+        let value = value % size as i32;
+        if value < 0 {
+            value + size as i32
+        } else {
+            value
+        }
+    }
+
+    #[inline]
+    fn normalize<S>(self, size: S) -> IVec2
+    where
+        S: Size2d,
+    {
+        IVec2 {
+            x: Self::normalize_part(self.x(), size.width()),
+            y: Self::normalize_part(self.y(), size.height()),
+        }
     }
 }
 

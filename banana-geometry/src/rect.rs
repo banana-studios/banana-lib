@@ -1,4 +1,14 @@
-use banana_grid::prelude::IVec2;
+use banana_grid::prelude::{GridPoint, IVec2, Size2d};
+use bitmask_enum::bitmask;
+use std::collections::HashSet;
+
+#[bitmask(u8)]
+pub enum GridCorner {
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight,
+}
 
 /// A rectangle defined by two opposite corners.
 ///
@@ -16,41 +26,36 @@ pub struct Rect {
     pub min: IVec2,
     /// The maximum corner point of the rect.
     pub max: IVec2,
+    // /// The size of the rect.
+    // pub size: IVec2,
 }
 
 impl Rect {
-    /// Create a new rectangle from two corner points.
+    /// Create a new rectangle from top corner and size.
     ///
     /// The two points do not need to be the minimum and/or maximum corners.
     /// They only need to be two opposite corners.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r = Rect::new(0., 4., 10., 6.); // w=10 h=2
-    /// let r = Rect::new(2., 3., 5., -1.); // w=3 h=4
-    /// ```
     #[inline]
-    pub fn new(x0: i32, y0: i32, x1: i32, y1: i32) -> Self {
-        Self::from_corners(IVec2::new(x0, y0), IVec2::new(x1, y1))
+    pub fn new<S>(top_corner: S, size: S) -> Self
+    where
+        S: Size2d,
+    {
+        let top_corner = top_corner.as_ivec2();
+        Self::from_corners(top_corner, top_corner + size.as_ivec2())
     }
 
     /// Create a new rectangle from two corner points.
     ///
     /// The two points do not need to be the minimum and/or maximum corners.
     /// They only need to be two opposite corners.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// // Unit rect from [0,0] to [1,1]
-    /// let r = Rect::from_corners(IVec2::ZERO, IVec2::ONE); // w=1 h=1
-    /// // Same; the points do not need to be ordered
-    /// let r = Rect::from_corners(IVec2::ONE, IVec2::ZERO); // w=1 h=1
-    /// ```
     #[inline]
-    pub fn from_corners(p0: IVec2, p1: IVec2) -> Self {
-        Rect { min: p0.min(p1), max: p0.max(p1) }
+    pub fn from_corners<S>(top_corner: S, bottom_corner: S) -> Self
+    where
+        S: Size2d,
+    {
+        let top_corner = top_corner.as_ivec2();
+        let bottom_corner = bottom_corner.as_ivec2();
+        Rect { min: top_corner, max: bottom_corner }
     }
 
     /// Create a new rectangle from its center and size.
@@ -58,17 +63,16 @@ impl Rect {
     /// # Panics
     ///
     /// This method panics if any of the components of the size is negative.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r = Rect::from_center_size(IVec2::ZERO, IVec2::ONE); // w=1 h=1
-    /// assert!(r.min.abs_diff_eq(IVec2::splat(-0.5), 1e-5));
-    /// assert!(r.max.abs_diff_eq(IVec2::splat(0.5), 1e-5));
-    /// ```
     #[inline]
-    pub fn from_center_size(origin: IVec2, size: IVec2) -> Self {
+    pub fn from_center_size<S>(origin: S, size: S) -> Self
+    where
+        S: Size2d,
+    {
+        let size = size.as_ivec2();
+        let origin = origin.as_ivec2();
+
         assert!(size.cmpge(IVec2::ZERO).all());
+
         let half_size = size / 2;
         Self::from_center_half_size(origin, half_size)
     }
@@ -78,304 +82,263 @@ impl Rect {
     /// # Panics
     ///
     /// This method panics if any of the components of the half-size is negative.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r = Rect::from_center_half_size(IVec2::ZERO, IVec2::ONE); // w=2 h=2
-    /// assert!(r.min.abs_diff_eq(IVec2::splat(-1.), 1e-5));
-    /// assert!(r.max.abs_diff_eq(IVec2::splat(1.), 1e-5));
-    /// ```
     #[inline]
-    pub fn from_center_half_size(origin: IVec2, half_size: IVec2) -> Self {
+    pub fn from_center_half_size<S>(origin: S, half_size: S) -> Self
+    where
+        S: Size2d,
+    {
+        let origin = origin.as_ivec2();
+        let half_size = half_size.as_ivec2();
+
         assert!(half_size.cmpge(IVec2::ZERO).all());
         Self { min: origin - half_size, max: origin + half_size }
     }
 
     /// Check if the rectangle is empty.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r = Rect::from_corners(IVec2::ZERO, IVec2::new(0., 1.)); // w=0 h=1
-    /// assert!(r.is_empty());
-    /// ```
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.min.cmpge(self.max).any()
     }
 
     /// Rectangle width (max.x - min.x).
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r = Rect::new(0., 0., 5., 1.); // w=5 h=1
-    /// assert!((r.width() - 5.).abs() <= 1e-5);
-    /// ```
     #[inline]
     pub fn width(&self) -> i32 {
         self.max.x - self.min.x
     }
 
     /// Rectangle height (max.y - min.y).
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r = Rect::new(0., 0., 5., 1.); // w=5 h=1
-    /// assert!((r.height() - 1.).abs() <= 1e-5);
-    /// ```
     #[inline]
     pub fn height(&self) -> i32 {
         self.max.y - self.min.y
     }
 
     /// Rectangle size.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r = Rect::new(0., 0., 5., 1.); // w=5 h=1
-    /// assert!(r.size().abs_diff_eq(IVec2::new(5., 1.), 1e-5));
-    /// ```
     #[inline]
     pub fn size(&self) -> IVec2 {
         self.max - self.min
     }
 
     /// Rectangle half-size.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r = Rect::new(0., 0., 5., 1.); // w=5 h=1
-    /// assert!(r.half_size().abs_diff_eq(IVec2::new(2.5, 0.5), 1e-5));
-    /// ```
     #[inline]
     pub fn half_size(&self) -> IVec2 {
         self.size() / 2
     }
 
     /// The center point of the rectangle.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r = Rect::new(0., 0., 5., 1.); // w=5 h=1
-    /// assert!(r.center().abs_diff_eq(IVec2::new(2.5, 0.5), 1e-5));
-    /// ```
     #[inline]
     pub fn center(&self) -> IVec2 {
         (self.min + self.max) / 2
     }
 
     /// Check if a point lies within this rectangle, inclusive of its edges.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r = Rect::new(0., 0., 5., 1.); // w=5 h=1
-    /// assert!(r.contains(r.center()));
-    /// assert!(r.contains(r.min));
-    /// assert!(r.contains(r.max));
-    /// ```
     #[inline]
-    pub fn contains(&self, point: IVec2) -> bool {
+    pub fn contains<P>(&self, point: P) -> bool
+    where
+        P: GridPoint,
+    {
+        let point = point.as_ivec2();
         (point.cmpge(self.min) & point.cmple(self.max)).all()
     }
 
-    /// Build a new rectangle formed of the union of this rectangle and another rectangle.
-    ///
-    /// The union is the smallest rectangle enclosing both rectangles.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r1 = Rect::new(0., 0., 5., 1.); // w=5 h=1
-    /// let r2 = Rect::new(1., -1., 3., 3.); // w=2 h=4
-    /// let r = r1.union(r2);
-    /// assert!(r.min.abs_diff_eq(IVec2::new(0., -1.), 1e-5));
-    /// assert!(r.max.abs_diff_eq(IVec2::new(5., 3.), 1e-5));
-    /// ```
+    /// Check if this rectangle intersects another rectangle.
     #[inline]
-    pub fn union(&self, other: Rect) -> Rect {
-        Rect { min: self.min.min(other.min), max: self.max.max(other.max) }
+    pub fn intersects(&self, other: Rect) -> bool {
+        // (self.min.cmple(other.max) & self.max.cmpge(other.min)).all()
+
+        self.min.x <= other.max.x
+            && self.max.x >= other.min.x
+            && self.min.y <= other.max.y
+            && self.max.y >= other.min.y
     }
 
-    /// Build a new rectangle formed of the union of this rectangle and a point.
-    ///
-    /// The union is the smallest rectangle enclosing both the rectangle and the point. If the
-    /// point is already inside the rectangle, this method returns a copy of the rectangle.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r = Rect::new(0., 0., 5., 1.); // w=5 h=1
-    /// let u = r.union_point(IVec2::new(3., 6.));
-    /// assert!(u.min.abs_diff_eq(IVec2::ZERO, 1e-5));
-    /// assert!(u.max.abs_diff_eq(IVec2::new(5., 6.), 1e-5));
-    /// ```
+    /// Grab the corner of the rectangle
     #[inline]
-    pub fn union_point(&self, other: IVec2) -> Rect {
-        Rect { min: self.min.min(other), max: self.max.max(other) }
+    pub fn corner(&self, corner: GridCorner) -> IVec2 {
+        let [w, h] = (self.size() / 2).to_array();
+        self.center()
+            + IVec2::from(match corner {
+                GridCorner::TopLeft => [-w, h],
+                GridCorner::TopRight => [w, h],
+                GridCorner::BottomLeft => [-w, -h],
+                GridCorner::BottomRight => [w, -h],
+                _ => panic!("Invalid corner"),
+            })
     }
 
-    /// Build a new rectangle formed of the intersection of this rectangle and another rectangle.
-    ///
-    /// The intersection is the largest rectangle enclosed in both rectangles. If the intersection
-    /// is empty, this method returns an empty rectangle ([`Rect::is_empty()`] returns `true`), but
-    /// the actual values of [`Rect::min`] and [`Rect::max`] are implementation-dependent.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r1 = Rect::new(0., 0., 5., 1.); // w=5 h=1
-    /// let r2 = Rect::new(1., -1., 3., 3.); // w=2 h=4
-    /// let r = r1.intersect(r2);
-    /// assert!(r.min.abs_diff_eq(IVec2::new(1., 0.), 1e-5));
-    /// assert!(r.max.abs_diff_eq(IVec2::new(3., 1.), 1e-5));
-    /// ```
+    /// Gets a set of all tiles in the rectangle
+    #[must_use]
     #[inline]
-    pub fn intersect(&self, other: Rect) -> Rect {
-        let mut r = Rect { min: self.min.max(other.min), max: self.max.min(other.max) };
-        // Collapse min over max to enforce invariants and ensure e.g. width() or
-        // height() never return a negative value.
-        r.min = r.min.min(r.max);
-        r
+    pub fn point_set(&self) -> HashSet<IVec2> {
+        let mut result = HashSet::new();
+        for y in self.min.y..self.max.y {
+            for x in self.min.x..self.max.x {
+                result.insert(IVec2::new(x, y));
+            }
+        }
+        result
     }
 
-    /// Create a new rectangle with a constant inset.
-    ///
-    /// The inset is the extra border on all sides. A positive inset produces a larger rectangle,
-    /// while a negative inset is allowed and produces a smaller rectangle. If the inset is negative
-    /// and its absolute value is larger than the rectangle half-size, the created rectangle is empty.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let r = Rect::new(0., 0., 5., 1.); // w=5 h=1
-    /// let r2 = r.inset(3.); // w=11 h=7
-    /// assert!(r2.min.abs_diff_eq(IVec2::splat(-3.), 1e-5));
-    /// assert!(r2.max.abs_diff_eq(IVec2::new(8., 4.), 1e-5));
-    /// ```
-    #[inline]
-    pub fn inset(&self, inset: i32) -> Rect {
-        let mut r = Rect { min: self.min - inset, max: self.max + inset };
-        // Collapse min over max to enforce invariants and ensure e.g. width() or
-        // height() never return a negative value.
-        r.min = r.min.min(r.max);
-        r
+    /// Calls a function for each x/y point in the rectangle
+    pub fn for_each<F>(&self, f: F)
+    where
+        F: FnMut(IVec2),
+    {
+        RectIter::new(self.min, self.max).for_each(f);
+    }
+}
+
+impl std::ops::Add<Rect> for Rect {
+    type Output = Rect;
+    fn add(mut self, rhs: Rect) -> Rect {
+        self.min += rhs.min;
+        self.max += rhs.max;
+        self
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////
+/// Rect Iter
+///////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Clone)]
+pub struct RectIter {
+    curr: IVec2,
+    size: IVec2,
+
+    /// The minimum corner point of the rect.
+    pub min: IVec2,
+    /// The maximum corner point of the rect.
+    pub max: IVec2,
+}
+
+impl RectIter {
+    pub fn new(min: impl Size2d, max: impl Size2d) -> Self {
+        let min = min.as_ivec2();
+        let max = max.as_ivec2();
+        let size = max - min;
+        Self { min, max, size, curr: IVec2::ZERO }
+    }
+}
+
+impl Iterator for RectIter {
+    type Item = IVec2;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.curr.cmpge(self.max).any() {
+            return None;
+        }
+
+        let p = self.curr;
+        self.curr.x += 1;
+        if self.curr.x == self.size.x {
+            self.curr.x = 0;
+            self.curr.y += 1;
+        }
+        Some(self.min + p)
+    }
+}
+
+impl IntoIterator for Rect {
+    type Item = IVec2;
+    type IntoIter = RectIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        RectIter::new(self.min, self.max)
+    }
+}
+
+impl From<Rect> for RectIter {
+    fn from(rect: Rect) -> Self {
+        rect.into_iter()
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::prelude::*;
+    use banana_commons::prelude::*;
+    use banana_grid::prelude::IVec2;
 
     #[test]
-    fn well_formed() {
-        let r = Rect::from_center_size(IVec2::new(3., -5.), IVec2::new(8., 11.));
-
-        assert!(r.min.abs_diff_eq(IVec2::new(-1., -10.5), 1e-5));
-        assert!(r.max.abs_diff_eq(IVec2::new(7., 0.5), 1e-5));
-
-        assert!(r.center().abs_diff_eq(IVec2::new(3., -5.), 1e-5));
-
-        assert!((r.width() - 8.).abs() <= 1e-5);
-        assert!((r.height() - 11.).abs() <= 1e-5);
-        assert!(r.size().abs_diff_eq(IVec2::new(8., 11.), 1e-5));
-        assert!(r.half_size().abs_diff_eq(IVec2::new(4., 5.5), 1e-5));
-
-        assert!(r.contains(IVec2::new(3., -5.)));
-        assert!(r.contains(IVec2::new(-1., -10.5)));
-        assert!(r.contains(IVec2::new(-1., 0.5)));
-        assert!(r.contains(IVec2::new(7., -10.5)));
-        assert!(r.contains(IVec2::new(7., 0.5)));
-        assert!(!r.contains(IVec2::new(50., -5.)));
+    fn iter() {
+        let ret = Rect::from_corners(IVec2::new(0, 0), IVec2::new(3, 3));
+        let mut canvas = Canvas::new([6, 6]);
+        RectIter::from(ret).for_each(|p| {
+            canvas.put(p, '*');
+        });
+        canvas.print();
     }
 
     #[test]
-    fn rect_union() {
-        let r = Rect::from_center_size(IVec2::ZERO, IVec2::ONE); // [-0.5,-0.5] - [0.5,0.5]
+    fn big() {
+        let rect = Rect::from_corners([2, 2], [8, 8]);
+        let mut canvas = Canvas::new([10, 10]);
 
-        // overlapping
-        let r2 = Rect { min: IVec2::new(-0.8, 0.3), max: IVec2::new(0.1, 0.7) };
-        let u = r.union(r2);
-        assert!(u.min.abs_diff_eq(IVec2::new(-0.8, -0.5), 1e-5));
-        assert!(u.max.abs_diff_eq(IVec2::new(0.5, 0.7), 1e-5));
-
-        // disjoint
-        let r2 = Rect { min: IVec2::new(-1.8, -0.5), max: IVec2::new(-1.5, 0.3) };
-        let u = r.union(r2);
-        assert!(u.min.abs_diff_eq(IVec2::new(-1.8, -0.5), 1e-5));
-        assert!(u.max.abs_diff_eq(IVec2::new(0.5, 0.5), 1e-5));
-
-        // included
-        let r2 = Rect::from_center_size(IVec2::ZERO, IVec2::splat(0.5));
-        let u = r.union(r2);
-        assert!(u.min.abs_diff_eq(r.min, 1e-5));
-        assert!(u.max.abs_diff_eq(r.max, 1e-5));
-
-        // including
-        let r2 = Rect::from_center_size(IVec2::ZERO, IVec2::splat(1.5));
-        let u = r.union(r2);
-        assert!(u.min.abs_diff_eq(r2.min, 1e-5));
-        assert!(u.max.abs_diff_eq(r2.max, 1e-5));
+        for p in rect {
+            canvas.put(p, '*');
+        }
+        canvas.print();
     }
 
     #[test]
-    fn rect_union_pt() {
-        let r = Rect::from_center_size(IVec2::ZERO, IVec2::ONE); // [-0.5,-0.5] - [0.5,0.5]
-
-        // inside
-        let v = IVec2::new(0.3, -0.2);
-        let u = r.union_point(v);
-        assert!(u.min.abs_diff_eq(r.min, 1e-5));
-        assert!(u.max.abs_diff_eq(r.max, 1e-5));
-
-        // outside
-        let v = IVec2::new(10., -3.);
-        let u = r.union_point(v);
-        assert!(u.min.abs_diff_eq(IVec2::new(-0.5, -3.), 1e-5));
-        assert!(u.max.abs_diff_eq(IVec2::new(10., 0.5), 1e-5));
+    fn test_dimensions() {
+        let rect = Rect::new([0, 0], [10, 10]);
+        assert!(rect.width() == 10);
+        assert!(rect.height() == 10);
     }
 
     #[test]
-    fn rect_intersect() {
-        let r = Rect::from_center_size(IVec2::ZERO, IVec2::ONE); // [-0.5,-0.5] - [0.5,0.5]
-
-        // overlapping
-        let r2 = Rect { min: IVec2::new(-0.8, 0.3), max: IVec2::new(0.1, 0.7) };
-        let u = r.intersect(r2);
-        assert!(u.min.abs_diff_eq(IVec2::new(-0.5, 0.3), 1e-5));
-        assert!(u.max.abs_diff_eq(IVec2::new(0.1, 0.5), 1e-5));
-
-        // disjoint
-        let r2 = Rect { min: IVec2::new(-1.8, -0.5), max: IVec2::new(-1.5, 0.3) };
-        let u = r.intersect(r2);
-        assert!(u.is_empty());
-        assert!(u.width() <= 1e-5);
-
-        // included
-        let r2 = Rect::from_center_size(IVec2::ZERO, IVec2::splat(0.5));
-        let u = r.intersect(r2);
-        assert!(u.min.abs_diff_eq(r2.min, 1e-5));
-        assert!(u.max.abs_diff_eq(r2.max, 1e-5));
-
-        // including
-        let r2 = Rect::from_center_size(IVec2::ZERO, IVec2::splat(1.5));
-        let u = r.intersect(r2);
-        assert!(u.min.abs_diff_eq(r.min, 1e-5));
-        assert!(u.max.abs_diff_eq(r.max, 1e-5));
+    fn test_add() {
+        let rect = Rect::from_corners([0, 0], [10, 10]) + Rect::from_corners((1, 1), (1, 1));
+        assert!(rect.min == IVec2::new(1, 1));
+        assert!(rect.max == IVec2::new(11, 11));
     }
 
     #[test]
-    fn rect_inset() {
-        let r = Rect::from_center_size(IVec2::ZERO, IVec2::ONE); // [-0.5,-0.5] - [0.5,0.5]
+    fn test_intersect() {
+        let r1 = Rect::new([0, 0], [10, 10]);
+        let r2 = Rect::new([5, 5], [10, 10]);
+        let r3 = Rect::new([100, 100], [5, 5]);
+        assert!(r1.intersects(r2));
+        assert!(!r1.intersects(r3));
+    }
 
-        let r2 = r.inset(0.3);
-        assert!(r2.min.abs_diff_eq(IVec2::new(-0.8, -0.8), 1e-5));
-        assert!(r2.max.abs_diff_eq(IVec2::new(0.8, 0.8), 1e-5));
+    #[test]
+    fn test_center() {
+        let r1 = Rect::new([0, 0], [10, 10]);
+        let center = r1.center();
+        assert!(center.x == 5 && center.y == 5);
+    }
+
+    #[test]
+    fn test_contains() {
+        let r1 = Rect::new([0, 0], [10, 10]);
+        assert!(r1.contains(IVec2::new(5, 5)));
+        assert!(!r1.contains(IVec2::new(100, 100)));
+    }
+
+    #[test]
+    fn test_rect_set() {
+        let r1 = Rect::new([0, 0], [1, 1]);
+        let points = r1.point_set();
+        assert!(points.contains(&IVec2::new(0, 0)));
+        assert!(!points.contains(&IVec2::new(1, 0)));
+        assert!(!points.contains(&IVec2::new(0, 1)));
+        assert!(!points.contains(&IVec2::new(1, 1)));
+    }
+
+    #[test]
+    fn test_rect_callback() {
+        use std::collections::HashSet;
+
+        let r1 = Rect::new([0, 0], [1, 1]);
+        let mut points: HashSet<IVec2> = HashSet::new();
+        r1.for_each(|p| {
+            points.insert(p);
+        });
+        assert!(points.contains(&IVec2::new(0, 0)));
+        assert!(!points.contains(&IVec2::new(1, 0)));
+        assert!(!points.contains(&IVec2::new(0, 1)));
+        assert!(!points.contains(&IVec2::new(1, 1)));
     }
 }

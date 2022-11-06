@@ -9,17 +9,35 @@ pub trait GridLike<T> {
         S: Size2d,
         Self: Sized;
 
-    fn new_default<S>(size: S) -> Self
-    where
-        T: Default,
-        S: Size2d,
-        Self: Sized;
-
     fn new_fn<S, F>(size: S, f: F) -> Self
     where
         S: Size2d,
         F: FnMut(IVec2) -> T,
         Self: Sized;
+
+    fn new_grid_map<G, U, F>(grid: G, f: F) -> Self
+    where
+        U: Clone,
+        Self: Sized,
+        G: GridLike<U>,
+        F: FnMut(&U) -> T;
+
+    fn new_clone<S>(size: S, value: T) -> Self
+    where
+        T: Clone,
+        S: Size2d;
+
+    fn new_default<S>(size: S) -> Self
+    where
+        T: Default,
+        S: Size2d;
+
+    fn new_copy<S>(size: S, value: T) -> Self
+    where
+        T: Copy,
+        S: Size2d;
+
+    fn data(&self) -> &[T];
 
     fn fill(&mut self, value: T)
     where
@@ -33,31 +51,31 @@ pub trait GridLike<T> {
     fn is_empty(&self) -> bool;
 
     /// Tests whether a point is in bounds.
-    fn in_bounds<I>(&self, index: I) -> bool
+    fn in_bounds<P>(&self, point: P) -> bool
     where
-        I: GridPoint,
+        P: GridPoint,
     {
-        let pos = index.as_ivec2();
+        let pos = point.as_ivec2();
         pos.cmpge(IVec2::ZERO).all() && pos.cmplt(self.size().as_ivec2()).all()
     }
 
     /// Gets the index corresponding to a coordinate, which is row-wise.
-    fn get_idx<I>(&self, index: I) -> usize
+    fn get_idx<P>(&self, point: P) -> usize
     where
-        I: GridPoint,
+        P: GridPoint,
     {
-        index.as_index(self.width() as usize)
+        point.as_index(self.width() as usize)
     }
 
     /// Try Gets the `GridPoint` corresponding to an index
     ///
     /// Returns `None` if the index is out of bounds.
-    fn try_idx<I>(&self, index: I) -> Option<usize>
+    fn try_idx<P>(&self, coord: P) -> Option<usize>
     where
-        I: GridPoint,
+        P: GridPoint,
     {
-        if self.in_bounds(index) {
-            Some(self.get_idx(index))
+        if coord.is_valid(self.size()) {
+            Some(self.get_idx(coord))
         } else {
             None
         }
@@ -107,26 +125,26 @@ pub trait GridLike<T> {
     ///////////////////////////////////////////////////////////////////////////
 
     // No bounds Checking
-    fn get<I>(&self, index: I) -> Option<&T>
+    fn get<P>(&self, point: P) -> Option<&T>
     where
-        I: GridPoint;
-    fn get_mut<I>(&mut self, index: I) -> Option<&mut T>
+        P: GridPoint;
+    fn get_mut<P>(&mut self, point: P) -> Option<&mut T>
     where
-        I: GridPoint;
+        P: GridPoint;
 
     // Bounds Checking
-    fn get_unchecked<I>(&self, index: I) -> &T
+    fn get_checked<P>(&self, point: P) -> &T
     where
-        I: GridPoint;
-    fn get_mut_unchecked<I>(&mut self, index: I) -> &mut T
+        P: GridPoint;
+    fn get_mut_checked<P>(&mut self, point: P) -> &mut T
     where
-        I: GridPoint;
+        P: GridPoint;
 
     ///////////////////////////////////////////////////////////////////////////
     /// GridPoint Iters
     ///////////////////////////////////////////////////////////////////////////
-    fn count_neighbors<I>(&self, index: I, val: T) -> usize
+    fn count_neighbors<P>(&self, point: P, val: T) -> usize
     where
-        I: GridPoint,
+        P: GridPoint,
         T: std::cmp::PartialEq;
 }

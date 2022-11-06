@@ -1,0 +1,8 @@
+[package]
+edition = "2021"
+name    = "banana-commons"
+version = "0.1.0"
+
+[dependencies]
+banana-grid = { path = "../banana-grid" }
+prettyprint = "*"

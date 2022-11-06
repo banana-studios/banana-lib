@@ -21,7 +21,10 @@ pub struct Grid<T> {
     pub cells: Vec<T>,
 }
 
-impl<T: Copy> GridLike<T> for Grid<T> {
+impl<T: Copy + Clone> GridLike<T> for Grid<T> {
+    ///////////////////////////////////////////////////////////////////////////
+    // New Functionality
+    ///////////////////////////////////////////////////////////////////////////
     #[inline(always)]
     fn new<S>(size: S, default_value: T) -> Self
     where
@@ -31,14 +34,13 @@ impl<T: Copy> GridLike<T> for Grid<T> {
         Self { size: size.as_uvec2(), cells: vec![default_value; size.count()] }
     }
 
-    #[inline(always)]
-    fn new_default<S>(size: S) -> Self
+    fn new_grid_map<G, U, F>(grid: G, f: F) -> Self
     where
-        T: Default,
-        S: Size2d,
+        G: GridLike<U>,
+        F: FnMut(&U) -> T,
         Self: Sized,
     {
-        Self { size: size.as_uvec2(), cells: vec![T::default(); size.count()] }
+        Self { cells: grid.data().iter().map(f).collect(), size: grid.size() }
     }
 
     #[inline(always)]
@@ -49,11 +51,54 @@ impl<T: Copy> GridLike<T> for Grid<T> {
         Self: Sized,
     {
         let mut cells = Vec::with_capacity(size.count());
-        for coord in size.coord_iter_row_major() {
+        for coord in size.iter() {
             cells.push(f(coord));
         }
 
         Self { size: size.as_uvec2(), cells }
+    }
+
+    #[inline(always)]
+    fn new_clone<S>(size: S, value: T) -> Self
+    where
+        T: Clone,
+        S: Size2d,
+    {
+        let count = size.count();
+        let mut cells = Vec::with_capacity(count);
+        cells.resize(count, value);
+        Self { cells, size: size.as_uvec2() }
+    }
+
+    #[inline(always)]
+    fn new_copy<S>(size: S, value: T) -> Self
+    where
+        T: Copy,
+        S: Size2d,
+    {
+        let count = size.count();
+        let mut cells = Vec::with_capacity(count);
+        cells.resize_with(count, || value);
+        Self { cells, size: size.as_uvec2() }
+    }
+
+    #[inline(always)]
+    fn new_default<S>(size: S) -> Self
+    where
+        T: Default,
+        S: Size2d,
+    {
+        let count = size.count();
+        let mut cells = Vec::with_capacity(count);
+        cells.resize_with(count, T::default);
+        Self { cells, size: size.as_uvec2() }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    #[inline]
+    fn data(&self) -> &[T] {
+        &self.cells
     }
 
     #[inline]
@@ -103,14 +148,14 @@ impl<T: Copy> GridLike<T> for Grid<T> {
         self.try_idx(index).map(move |idx| &mut self.cells[idx])
     }
 
-    fn get_unchecked<I>(&self, index: I) -> &T
+    fn get_checked<I>(&self, index: I) -> &T
     where
         I: GridPoint,
     {
         self.cells.index(self.get_idx(index))
     }
 
-    fn get_mut_unchecked<I>(&mut self, index: I) -> &mut T
+    fn get_mut_checked<I>(&mut self, index: I) -> &mut T
     where
         I: GridPoint,
     {
@@ -137,23 +182,12 @@ impl<T: Copy> GridLike<T> for Grid<T> {
     }
 }
 
-impl<T: Copy> Grid<T> {
-    pub fn new_grid_map<U: Copy, F>(grid: Grid<U>, f: F) -> Self
-    where
-        F: FnMut(U) -> T,
-    {
-        let size = grid.size;
-        let cells = grid.cells.into_iter().map(f).collect();
-        Self { cells, size }
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////
 // Iterator Functionality
 ///////////////////////////////////////////////////////////////////////////
 
 impl<T: Copy> Grid<T> {
-    pub fn map<U: Copy, F: FnMut(T) -> U>(self, f: F) -> Grid<U> {
+    pub fn map<U: Copy, F: FnMut(&T) -> U>(self, f: F) -> Grid<U> {
         Grid::new_grid_map(self, f)
     }
 
@@ -170,7 +204,7 @@ impl<T: Copy> Grid<T> {
     }
 
     pub fn point_iter(&self) -> PointIterRowMajor {
-        self.size.coord_iter_row_major()
+        self.size.iter()
     }
 
     #[inline]
@@ -265,13 +299,13 @@ impl<T: Copy, P: GridPoint> Index<P> for Grid<T> {
 
     #[inline]
     fn index(&self, index: P) -> &T {
-        self.get_unchecked(index)
+        self.get_checked(index)
     }
 }
 
 impl<T: Copy, P: GridPoint> IndexMut<P> for Grid<T> {
     #[inline]
     fn index_mut(&mut self, index: P) -> &mut Self::Output {
-        self.get_mut_unchecked(index)
+        self.get_mut_checked(index)
     }
 }
