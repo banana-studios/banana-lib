@@ -197,7 +197,7 @@ impl<T: Copy> Grid<T> {
         &self,
         range: impl RangeBounds<usize>,
     ) -> impl DoubleEndedIterator<Item = &[T]> {
-        let [start, end] = self.range_to_start_end(range, 1);
+        let [start, end] = self.range_to_start_end(range, Axis::Y);
         let width = self.width() as usize;
         let count = end.saturating_sub(start) + 1;
         let chunks = self.cells[start * width..].chunks(width);
@@ -211,7 +211,7 @@ impl<T: Copy> Grid<T> {
         &mut self,
         range: impl RangeBounds<usize>,
     ) -> impl DoubleEndedIterator<Item = &mut [T]> {
-        let [start, end] = self.range_to_start_end(range, 1);
+        let [start, end] = self.range_to_start_end(range, Axis::Y);
         let width = self.width() as usize;
         let count = end - start + 1;
         let chunks = self.cells[start * width..].chunks_mut(width);

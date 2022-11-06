@@ -20,17 +20,19 @@ panic         = 'abort'
 
 [workspace]
 exclude = ["benches"]
-members = ["banana-grid", "banana-geometry"]
+members = ["banana-grid", "banana-geometry", "banana-direction"]
 
 [features]
+2d        = ["banana-grid/2d"]
 bevy      = ["banana-grid/bvy"]
 default   = ["banana-grid/default"]
 serialize = ["banana-geometry/serialize", "banana-grid/serialize"]
 
 [dependencies]
 # locals
-banana-geometry = { path = "banana-geometry", version = "~0.1" }
-banana-grid     = { path = "banana-grid", default-features = false, version = "~0.1" }
+banana-direction = { path = "banana-direction", version = "~0.1" }
+banana-geometry  = { path = "banana-geometry", version = "~0.1" }
+banana-grid      = { path = "banana-grid", default-features = false, version = "~0.1" }
 
 [dev-dependencies]
 criterion = { version = "0.4.0" }

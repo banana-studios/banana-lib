@@ -1,8 +1,40 @@
 use crate::prelude::*;
 
+pub const MAX_SIZE_FIELD: u32 = ::core::i32::MAX as u32 + 1;
+pub const MAX_SIZE: UVec2 = UVec2 { x: MAX_SIZE_FIELD, y: MAX_SIZE_FIELD };
+
+#[derive(Debug)]
+pub struct DimensionTooLargeForSize;
+
+const fn check_size_limit(value: u32) -> Result<(), DimensionTooLargeForSize> {
+    if value > MAX_SIZE_FIELD {
+        Err(DimensionTooLargeForSize)
+    } else {
+        Ok(())
+    }
+}
+
 /// A trait for types representing a 2d size.
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub trait Size2d: Clone + Copy {
+    fn try_new(width: u32, height: u32) -> Result<UVec2, DimensionTooLargeForSize> {
+        check_size_limit(width)?;
+        check_size_limit(height)?;
+        Ok(UVec2 { x: width, y: height })
+    }
+
+    /// Creates a new `UVec2`.
+    /// Panics if `width` or `width` is greater than `::core::i32::MAX as u32 + 1`.
+    #[allow(clippy::new_ret_no_self)]
+    fn new(width: u32, height: u32) -> UVec2 {
+        match Self::try_new(width, height) {
+            Err(DimensionTooLargeForSize) => {
+                panic!("Size is too big: ({}, {}). Max is {}.", width, width, MAX_SIZE_FIELD);
+            }
+            Ok(size) => size,
+        }
+    }
+
     /// Returns width coordinate.
     fn width(&self) -> u32;
 
@@ -48,14 +80,6 @@ pub trait Size2d: Clone + Copy {
     #[inline]
     fn as_uarray(&self) -> [usize; 2] {
         [self.width() as usize, self.height() as usize]
-    }
-
-    #[inline]
-    fn intersects<S>(&self, other: S) -> bool
-    where
-        S: Size2d,
-    {
-        self.width() > 0 && self.height() > 0 && other.width() > 0 && other.height() > 0
     }
 
     #[inline]

@@ -85,19 +85,10 @@ pub trait GridLike<T> {
         }
     }
 
-    // Size of the grid along a given axis, where 0 == x and 1 == y
-    fn axis_size(&self, axis: usize) -> usize {
-        match axis {
-            0 => self.width() as usize,
-            1 => self.height() as usize,
-            _ => panic!("Invalid grid axis {}", axis),
-        }
-    }
-
     /// Convert a range into a [start,end] pair.
     ///
     /// An unbounded "end" returned by this function should be treated as EXCLUSIVE.
-    fn range_to_start_end(&self, range: impl RangeBounds<usize>, axis: usize) -> [usize; 2] {
+    fn range_to_start_end(&self, range: impl RangeBounds<usize>, axis: Axis) -> [usize; 2] {
         let start = match range.start_bound() {
             Bound::Included(start) => *start,
             Bound::Excluded(start) => *start,
@@ -106,7 +97,7 @@ pub trait GridLike<T> {
         let end = match range.end_bound() {
             Bound::Included(end) => *end,
             Bound::Excluded(end) => *end - 1,
-            Bound::Unbounded => self.axis_size(axis),
+            Bound::Unbounded => axis.size(self.size()) as usize,
         };
 
         [start, end]

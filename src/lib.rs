@@ -14,3 +14,7 @@ pub mod geometry {
 pub mod grid {
     pub use banana_grid::prelude::*;
 }
+
+pub mod direction {
+    pub use banana_direction::prelude::*;
+}

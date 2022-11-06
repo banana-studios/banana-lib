@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use banana_grid::prelude::{GridPoint, IVec2, Size2d};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct Rect {
@@ -36,8 +36,17 @@ impl Rect {
 
     /// Returns true if this overlaps with other
     #[must_use]
-    pub fn intersect(&self, other: &Rect) -> bool {
-        self.size.intersects(other.size)
+    pub fn intersect(&self, rhs: &Rect) -> bool {
+        let self_x2 = self.start.x + self.size.x;
+        let self_y2 = self.start.y + self.size.y;
+
+        let other_x2 = rhs.start.x + rhs.size.x;
+        let other_y2 = rhs.start.y + rhs.size.y;
+
+        self.start.x <= other_x2
+            && self_x2 >= rhs.start.x
+            && self.start.y <= other_y2
+            && self_y2 >= rhs.start.y
     }
 
     /// Returns the center of the rectangle
