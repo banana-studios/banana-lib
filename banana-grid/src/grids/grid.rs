@@ -4,6 +4,9 @@ use std::{
     slice,
 };
 
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
+
 pub type PointIter = PointIterRowMajor;
 pub type GridIter<'a, T> = slice::Iter<'a, T>;
 pub type GridIterMut<'a, T> = slice::IterMut<'a, T>;

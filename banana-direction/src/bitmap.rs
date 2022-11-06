@@ -1,6 +1,9 @@
 use crate::prelude::*;
 use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign};
 
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
+
 pub const NO_DIRECTIONS_BITMAP_RAW: u8 = 0;
 pub const ALL_DIRECTIONS_BITMAP_RAW: u8 = 0xff;
 

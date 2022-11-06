@@ -15,7 +15,6 @@ const fn check_size_limit(value: u32) -> Result<(), DimensionTooLargeForSize> {
 }
 
 /// A trait for types representing a 2d size.
-#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub trait Size2d: Clone + Copy {
     fn try_new(width: u32, height: u32) -> Result<UVec2, DimensionTooLargeForSize> {
         check_size_limit(width)?;

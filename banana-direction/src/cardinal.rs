@@ -1,6 +1,9 @@
 use crate::prelude::*;
 use banana_grid::prelude::{Axis, GridPoint, IVec2};
 
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
+
 pub const NUM_CARDINAL_DIRECTIONS: usize = 4;
 pub const ALL_CARDINAL_DIRECTION_BITMAP_RAW: u8 = (1 << Direction::North as usize)
     | (1 << Direction::East as usize)
@@ -171,10 +174,10 @@ impl From<CardinalDirection> for (i32, i32) {
     }
 }
 
-#[cfg(feature = "rand")]
+#[cfg(feature = "rng")]
 impl Distribution<CardinalDirection> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> CardinalDirection {
         let index = rng.gen_range(0..NUM_CARDINAL_DIRECTIONS as u8);
-        unsafe { mem::transmute(index) }
+        unsafe { std::mem::transmute(index) }
     }
 }

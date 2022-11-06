@@ -5,15 +5,6 @@ mod iter;
 mod ordinal;
 mod table;
 
-#[cfg(feature = "serialize")]
-use serde::{Deserialize, Serialize};
-
-#[cfg(feature = "rand")]
-use rand::{
-    distributions::{Distribution, Standard},
-    Rng,
-};
-
 pub mod prelude {
     pub use crate::bitmap::*;
     pub use crate::cardinal::*;
@@ -21,6 +12,12 @@ pub mod prelude {
     pub use crate::iter::*;
     pub use crate::ordinal::*;
     pub use crate::table::*;
+
+    #[cfg(feature = "rng")]
+    pub use rand::{
+        distributions::{Distribution, Standard},
+        Rng,
+    };
 }
 
 #[cfg(test)]

@@ -4,6 +4,9 @@ use std::mem::MaybeUninit;
 use std::ops::{Index, IndexMut};
 use std::slice;
 
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
+
 pub type DirectionTableIter<'a, T> = slice::Iter<'a, T>;
 pub type DirectionTableIterMut<'a, T> = slice::IterMut<'a, T>;
 

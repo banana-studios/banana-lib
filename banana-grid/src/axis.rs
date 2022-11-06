@@ -1,5 +1,8 @@
 use crate::{prelude::*, size_2d::Size2d};
 
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
+
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Axis {

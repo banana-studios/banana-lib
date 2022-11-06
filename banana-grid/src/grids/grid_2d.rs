@@ -5,6 +5,9 @@ use ndarray::{
 };
 use std::ops::{Index, IndexMut};
 
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
+
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Grid2D<T> {

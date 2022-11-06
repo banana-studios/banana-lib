@@ -3,7 +3,6 @@ use std::ops::{Bound, RangeBounds};
 
 /// The [Grid] trait abstracts over containers of [Clone] and [Copy] items laid out in a rectangle
 /// with a certain [width](Self::width) and [height](Self::height).
-#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub trait GridLike<T> {
     fn new<S>(size: S, new_value: T) -> Self
     where

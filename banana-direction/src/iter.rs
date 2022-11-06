@@ -2,6 +2,9 @@ use crate::prelude::*;
 use std::mem;
 use std::ops::Range;
 
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
+
 #[macro_export]
 macro_rules! make_direction_iter {
     ($col_name:ident, $iter_name:ident, $type:ident, $count:expr) => {

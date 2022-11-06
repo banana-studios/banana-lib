@@ -38,7 +38,6 @@ impl Iterator for PointIterRowMajor {
 // Grid Point
 ////////////////////////////////////////////////////////////
 
-#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub trait GridPoint: Clone + Copy {
     #[allow(clippy::new_ret_no_self)]
     /// Construct a IVec2 (impl of GridPoint)

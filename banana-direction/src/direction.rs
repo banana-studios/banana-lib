@@ -1,6 +1,9 @@
 use crate::prelude::*;
 use banana_grid::prelude::{GridPoint, IVec2};
 
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
+
 pub const NUM_DIRECTIONS: usize = 8;
 
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
@@ -249,10 +252,10 @@ impl From<Direction> for (i32, i32) {
     }
 }
 
-#[cfg(feature = "rand")]
+#[cfg(feature = "rng")]
 impl Distribution<Direction> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Direction {
         let index = rng.gen_range(0..NUM_DIRECTIONS as u8);
-        unsafe { mem::transmute(index) }
+        unsafe { std::mem::transmute(index) }
     }
 }
