@@ -7,8 +7,8 @@ version = "0.1.0"
 serialize = ["serde", "banana-grid/serialize"]
 
 [dependencies]
-banana-commons = { path = "../banana-commons" }
-banana-grid    = { path = "../banana-grid" }
+banana-grid  = { path = "../banana-grid" }
+banana-utils = { path = "../banana-utils" }
 
 bitmask-enum = { version = "2" }
 serde        = { version = "1", features = ["derive"], optional = true }

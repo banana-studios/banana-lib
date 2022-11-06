@@ -1,8 +1,8 @@
 [package]
 edition  = "2021"
-exclude  = ["banana-geometry", "banana-grid"]
+exclude  = ["banana-geometry", "banana-grid", "banana-utils", "banana-direction"]
 name     = "banana-lib"
-resolver = "2"                                # Enables the new Cargo resolution engine
+resolver = "2"
 version  = "0.1.0"
 
 [profile.dev.package."*"]
@@ -20,7 +20,14 @@ panic         = 'abort'
 
 [workspace]
 exclude = ["benches"]
-members = ["banana-grid", "banana-geometry", "banana-direction"]
+members = [
+  "banana-grid",
+  "banana-geometry",
+  "banana-direction",
+  "banana-utils",
+  "tools/ci",
+  "tools/spancmp",
+]
 
 [features]
 2d        = ["banana-grid/2d"]
@@ -30,19 +37,18 @@ rng       = ["banana-direction/rng"]
 serialize = ["banana-geometry/serialize", "banana-grid/serialize", "banana-direction/serialize"]
 
 [dependencies]
-# locals
-banana-commons   = { path = "banana-commons", version = "~0.1" }
 banana-direction = { path = "banana-direction", version = "~0.1" }
 banana-geometry  = { path = "banana-geometry", version = "~0.1" }
 banana-grid      = { path = "banana-grid", default-features = false, version = "~0.1" }
+banana-utils     = { path = "banana-utils", version = "~0.1" }
 
 [dev-dependencies]
-criterion = { version = "0.4.0" }
+criterion = { version = "0.4" }
 plotters  = "0.3"
 rand      = "0.8"
 
 [build-dependencies]
-embed-resource = "1.4"
+embed-resource = "1"
 
 [[bench]]
 harness = false
