@@ -168,19 +168,4 @@ mod tests {
         d = DistanceAlg::Chebyshev.distance2d((0, 0), (5, 5));
         assert!(f32::abs(d - 5.0) < f32::EPSILON);
     }
-
-    #[test]
-    fn test_algorithm_from_shared_reference() {
-        let mut algorithm = DistanceAlg::Chebyshev;
-        let mut d = algorithm.distance2d((0, 0), (5, 5));
-        assert!(f32::abs(d - 5.0) < f32::EPSILON);
-
-        algorithm = DistanceAlg::Manhattan;
-        d = algorithm.distance2d((0, 0), (5, 5));
-        assert!(f32::abs(d - 10.0) < f32::EPSILON);
-
-        let shared_ref = &algorithm;
-        d = shared_ref.distance2d((0, 0), (5, 5));
-        assert!(f32::abs(d - 10.0) < f32::EPSILON);
-    }
 }

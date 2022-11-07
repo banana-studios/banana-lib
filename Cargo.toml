@@ -4,7 +4,6 @@ categories  = ["game-engines"]
 description = "Meta-crate holding the entirety of banana-lib (and exposing it). Use this for the full roguelike toolkit experience."
 edition     = "2021"
 exclude     = ["banana-geometry", "banana-grid", "banana-utils", "banana-direction"]
-incremental = false
 keywords    = ["roguelike", "gamedev", "terminal", "ascii", "cp437"]
 license     = "MIT OR Apache-2.0"
 name        = "banana-lib"
