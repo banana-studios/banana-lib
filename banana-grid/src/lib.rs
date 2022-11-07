@@ -14,8 +14,8 @@ pub mod prelude {
     pub use crate::{impl_grid_point_array, impl_grid_point_tuple};
 
     #[cfg(not(feature = "bvy"))]
-    pub use glam::{IVec2, UVec2, Vec2};
+    pub use glam::{IVec2, IVec3, UVec2, UVec3, Vec2, Vec3};
 
     #[cfg(feature = "bvy")]
-    pub use bevy::prelude::{IVec2, UVec2, Vec2};
+    pub use bevy::prelude::{IVec2, IVec3, UVec2, UVec3, Vec2, Vec3};
 }

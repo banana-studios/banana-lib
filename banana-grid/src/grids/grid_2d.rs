@@ -318,8 +318,13 @@ impl<T: Copy> Grid2D<T> {
         self.data.slice(s![start1..end1, start2..end2])
     }
 
-    pub fn slice_y<X: TryInto<i32>>(&self, y: X) -> ArrayView<T, Ix1> {
-        self.data.column(y.try_into().ok().expect("Failed to convert to i32") as usize)
+    pub fn row<X: TryInto<i32>>(&self, x: X) -> ArrayView<T, Ix1> {
+        self.data.row(x.try_into().ok().expect("Failed to convert x to row_i32") as usize)
+    }
+
+    pub fn column<X: TryInto<i32>>(&self, y: X) -> ArrayView<T, Ix1> {
+        self.data
+            .column(y.try_into().ok().expect("Failed to convert y to column_i32") as usize)
     }
 }
 

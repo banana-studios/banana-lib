@@ -2,7 +2,8 @@ use super::Rect;
 use banana_grid::prelude::{IVec2, Size2d};
 
 #[derive(Debug, Clone)]
-pub struct RectIter {
+#[allow(clippy::module_name_repetitions)]
+pub struct RectPointIter {
     curr: IVec2,
     size: IVec2,
 
@@ -12,7 +13,7 @@ pub struct RectIter {
     pub max: IVec2,
 }
 
-impl RectIter {
+impl RectPointIter {
     pub fn new(min: impl Size2d, max: impl Size2d) -> Self {
         let min = min.as_ivec2();
         let max = max.as_ivec2();
@@ -21,7 +22,7 @@ impl RectIter {
     }
 }
 
-impl Iterator for RectIter {
+impl Iterator for RectPointIter {
     type Item = IVec2;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -41,14 +42,14 @@ impl Iterator for RectIter {
 
 impl IntoIterator for Rect {
     type Item = IVec2;
-    type IntoIter = RectIter;
+    type IntoIter = RectPointIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        RectIter::new(self.min, self.max)
+        RectPointIter::new(self.min, self.max)
     }
 }
 
-impl From<Rect> for RectIter {
+impl From<Rect> for RectPointIter {
     fn from(rect: Rect) -> Self {
         rect.into_iter()
     }

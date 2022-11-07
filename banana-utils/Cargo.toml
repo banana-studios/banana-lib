@@ -1,7 +1,10 @@
 [package]
-edition = "2021"
-name    = "banana-utils"
-version = "0.1.0"
+categories  = ["game-development", "internal"]
+description = "A collection of utilities for banana-lib."
+edition     = "2021"
+name        = "banana-utils"
+publish     = false
+version     = "0.1.0"
 
 [dependencies]
 banana-grid = { path = "../banana-grid" }

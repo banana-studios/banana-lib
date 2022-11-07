@@ -1,7 +1,14 @@
 [package]
-edition = "2021"
-name    = "banana-geometry"
-version = "0.1.0"
+categories  = ["game-engines", "graphics"]
+description = "Geometry utilities. Rect, lines, circles, distance calculations."
+edition     = "2021"
+keywords    = ["geometry", "gamedev", "bresenham", "circle", "distance"]
+license     = "MIT OR Apache-2.0"
+name        = "banana-geometry"
+publish     = true
+readme      = "README.md"
+repository  = "https://github.com/banana-studios/banana-lib"
+version     = "0.1.0"
 
 [features]
 serialize = ["serde", "banana-grid/serialize"]
@@ -10,5 +17,4 @@ serialize = ["serde", "banana-grid/serialize"]
 banana-grid  = { path = "../banana-grid" }
 banana-utils = { path = "../banana-utils" }
 
-bitmask-enum = { version = "2" }
-serde        = { version = "1", features = ["derive"], optional = true }
+serde = { version = "1", features = ["derive"], optional = true }

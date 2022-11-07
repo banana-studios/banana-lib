@@ -1,5 +1,4 @@
 use banana_grid::prelude::{GridPoint, IVec2, Size2d};
-use bitmask_enum::bitmask;
 use std::collections::HashSet;
 
 mod arithmitic;
@@ -8,7 +7,6 @@ mod iter;
 pub use arithmitic::*;
 pub use iter::*;
 
-#[bitmask(u8)]
 pub enum GridCorner {
     TopLeft,
     TopRight,
@@ -25,8 +23,8 @@ pub enum GridCorner {
 /// methods instead, which will ensure this invariant is met, unless you already have
 /// the minimum and maximum corners.
 #[repr(C)]
-#[derive(Default, Clone, Copy, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serialize", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Default, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Rect {
     /// The minimum corner point of the rect.
     pub min: IVec2,
@@ -102,36 +100,42 @@ impl Rect {
 
     /// Check if the rectangle is empty.
     #[inline]
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.min.cmpge(self.max).any()
     }
 
     /// Rectangle width (max.x - min.x).
     #[inline]
+    #[must_use]
     pub fn width(&self) -> i32 {
         self.max.x - self.min.x
     }
 
     /// Rectangle height (max.y - min.y).
     #[inline]
+    #[must_use]
     pub fn height(&self) -> i32 {
         self.max.y - self.min.y
     }
 
     /// Rectangle size.
     #[inline]
+    #[must_use]
     pub fn size(&self) -> IVec2 {
         self.max - self.min
     }
 
     /// Rectangle half-size.
     #[inline]
+    #[must_use]
     pub fn half_size(&self) -> IVec2 {
         self.size() / 2
     }
 
     /// The center point of the rectangle.
     #[inline]
+    #[must_use]
     pub fn center(&self) -> IVec2 {
         (self.min + self.max) / 2
     }
@@ -148,6 +152,7 @@ impl Rect {
 
     /// Check if this rectangle intersects another rectangle.
     #[inline]
+    #[must_use]
     pub fn intersects(&self, other: Rect) -> bool {
         // (self.min.cmple(other.max) & self.max.cmpge(other.min)).all()
 
@@ -159,7 +164,8 @@ impl Rect {
 
     /// Grab the corner of the rectangle
     #[inline]
-    pub fn corner(&self, corner: GridCorner) -> IVec2 {
+    #[must_use]
+    pub fn corner(&self, corner: &GridCorner) -> IVec2 {
         let [w, h] = (self.size() / 2).to_array();
         self.center()
             + IVec2::from(match corner {
@@ -167,7 +173,6 @@ impl Rect {
                 GridCorner::TopRight => [w, h],
                 GridCorner::BottomLeft => [-w, -h],
                 GridCorner::BottomRight => [w, -h],
-                _ => panic!("Invalid corner"),
             })
     }
 
@@ -189,21 +194,21 @@ impl Rect {
     where
         F: FnMut(IVec2),
     {
-        RectIter::new(self.min, self.max).for_each(f);
+        RectPointIter::new(self.min, self.max).for_each(f);
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::prelude::*;
-    use banana_commons::prelude::*;
     use banana_grid::prelude::IVec2;
+    use banana_utils::*;
 
     #[test]
     fn iter() {
         let ret = Rect::from_corners(IVec2::new(0, 0), IVec2::new(3, 3));
         let mut canvas = Canvas::new([6, 6]);
-        RectIter::from(ret).for_each(|p| {
+        RectPointIter::from(ret).for_each(|p| {
             canvas.put(p, '*');
         });
         canvas.print();

@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic, clippy::cargo)]
+
 //! banana-lib is a wrapper of the banana- set of crates designed initally
 //! for roguelike development
 
