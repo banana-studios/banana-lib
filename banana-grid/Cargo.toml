@@ -4,15 +4,14 @@ name    = "banana-grid"
 version = "0.1.0"
 
 [features]
-2d        = ["anyhow", "ndarray"]
 bvy       = ["bevy"]
 default   = ["glam"]
 parallel  = ["rayon"]
 serialize = ["serde", "glam/serde", "ndarray/serde"]
 
 [dependencies]
-anyhow  = { version = "1.0", optional = true }
-ndarray = { version = "0.15", optional = true }
+anyhow  = { version = "1.0" }
+ndarray = { version = "0.15" }
 
 bevy  = { version = "0.8", default-features = false, optional = true }
 glam  = { version = "0.22", optional = true }

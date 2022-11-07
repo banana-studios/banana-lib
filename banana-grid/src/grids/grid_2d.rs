@@ -224,7 +224,7 @@ impl<T> Grid2D<T> {
 // Index Functionality
 ///////////////////////////////////////////////////////////////////////////
 
-impl<T> Grid2D<T> {
+impl<T: Copy> Grid2D<T> {
     pub fn rows(&self) -> AxisIter<T, Ix1> {
         self.data.axis_iter(Axis(0))
     }
@@ -254,7 +254,7 @@ impl<T> Grid2D<T> {
 // Iterator Functionality
 ///////////////////////////////////////////////////////////////////////////
 
-impl<T> Grid2D<T> {
+impl<T: Copy> Grid2D<T> {
     #[inline]
     pub fn iter(&self) -> impl Iterator<Item = &T> {
         self.data.iter()
@@ -277,6 +277,7 @@ impl<T> Grid2D<T> {
 
     pub fn map_ref<U, Sh, F>(&self, f: F) -> Grid2D<U>
     where
+        U: Clone,
         F: FnMut(&T) -> U,
         Sh: Size2d + ShapeBuilder<Dim = Ix2>,
     {
@@ -315,6 +316,10 @@ impl<T> Grid2D<T> {
         let start2 = end.x() as i32;
         let end2 = end.y() as i32;
         self.data.slice(s![start1..end1, start2..end2])
+    }
+
+    pub fn slice_y<X: TryInto<i32>>(&self, y: X) -> ArrayView<T, Ix1> {
+        self.data.column(y.try_into().ok().expect("Failed to convert to i32") as usize)
     }
 }
 

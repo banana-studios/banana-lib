@@ -30,7 +30,6 @@ members = [
 ]
 
 [features]
-2d        = ["banana-grid/2d"]
 bevy      = ["banana-grid/bvy"]
 default   = ["banana-grid/default"]
 rng       = ["banana-direction/rng"]
