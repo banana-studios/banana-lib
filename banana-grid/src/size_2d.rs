@@ -119,19 +119,19 @@ pub trait Size2d: Clone + Copy {
         axis.new_size(this_axis, other_axis)
     }
 
-    /// Convert dimensions to IVec2 (i32).
+    /// Convert dimensions to `IVec2` (i32).
     #[inline]
     fn as_ivec2(&self) -> IVec2 {
         IVec2::new(self.width() as i32, self.height() as i32)
     }
 
-    /// Convert dimensions to UVec2 (u32).
+    /// Convert dimensions to `UVec2` (u32).
     #[inline]
     fn as_uvec2(&self) -> UVec2 {
         self.as_ivec2().as_uvec2()
     }
 
-    /// Convert dimensions to Vec2 (f32).
+    /// Convert dimensions to `Vec2` (f32).
     #[inline]
     fn as_vec2(&self) -> Vec2 {
         self.as_ivec2().as_vec2()

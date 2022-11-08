@@ -31,7 +31,7 @@ mod test {
             assert_eq!(
                 CardinalDirections.into_iter().collect::<Vec<_>>(),
                 vec![North, East, South, West]
-            )
+            );
         }
 
         {
@@ -39,7 +39,7 @@ mod test {
             assert_eq!(
                 OrdinalDirections.into_iter().collect::<Vec<_>>(),
                 vec![NorthEast, SouthEast, SouthWest, NorthWest]
-            )
+            );
         }
 
         {
@@ -47,7 +47,7 @@ mod test {
             assert_eq!(
                 Directions.into_iter().collect::<Vec<_>>(),
                 vec![North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest,]
-            )
+            );
         }
     }
 

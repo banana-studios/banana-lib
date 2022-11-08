@@ -50,8 +50,7 @@ banana-grid      = { path = "banana-grid", default-features = false, version = "
 banana-utils     = { path = "banana-utils", version = "~0.1" }
 
 [dev-dependencies]
-criterion = { version = "0.4" }
-plotters  = "0.3"
+criterion = { version = "0.4", features = ["html_reports"] }
 rand      = "0.8"
 
 [build-dependencies]

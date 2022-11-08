@@ -6,7 +6,8 @@ use std::ops::Sub;
 pub enum DistanceAlg {
     /// Use the Pythagoras algorithm for determining distance - sqrt(A^2 + B^2)
     Pythagoras,
-    /// Us the Pythagoras algorithm for distance, but omitting the square-root for a faster but squared result.
+    /// Us the Pythagoras algorithm for distance, but omitting the square-root for a faster but
+    /// squared result.
     PythagorasSquared,
     /// Use Manhattan distance (distance up plus distance along)
     Manhattan,

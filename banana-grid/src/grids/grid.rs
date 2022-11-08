@@ -13,7 +13,6 @@ pub type GridIterMut<'a, T> = slice::IterMut<'a, T>;
 pub type GridRows<'a, T> = slice::Chunks<'a, T>;
 pub type GridRowsMut<'a, T> = slice::ChunksMut<'a, T>;
 
-/// Compact bitwise implementation of a [Grid] of [bool]'s.
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 #[derive(Default, Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Grid<T> {
@@ -201,10 +200,6 @@ impl<T: Copy> Grid<T> {
     #[inline]
     pub fn iter_mut(&mut self) -> GridIterMut<T> {
         self.cells.iter_mut()
-    }
-
-    pub fn point_iter(&self) -> PointIterRowMajor {
-        self.size.iter()
     }
 
     #[inline]

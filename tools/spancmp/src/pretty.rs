@@ -167,10 +167,8 @@ impl Scale {
 
 lazy_static! {
     static ref SYSTEM_NAME: Regex = Regex::new(r#"system: name="([^"]+)""#).unwrap();
-    static ref SYSTEM_OVERHEAD: Regex =
-        Regex::new(r#"system overhead: name="([^"]+)""#).unwrap();
-    static ref SYSTEM_COMMANDS: Regex =
-        Regex::new(r#"system_commands: name="([^"]+)""#).unwrap();
+    static ref SYSTEM_OVERHEAD: Regex = Regex::new(r#"system overhead: name="([^"]+)""#).unwrap();
+    static ref SYSTEM_COMMANDS: Regex = Regex::new(r#"system_commands: name="([^"]+)""#).unwrap();
 }
 
 pub fn simplify_name(name: &str) -> String {

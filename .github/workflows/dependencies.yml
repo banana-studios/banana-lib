@@ -23,9 +23,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
       - uses: dtolnay/rust-toolchain@stable
+      
       - name: Install cargo-deny
         run: cargo install cargo-deny
+      
       - name: Check for security advisories and unmaintained crates
         run: cargo deny check advisories
 

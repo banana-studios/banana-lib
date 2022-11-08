@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 pub trait GridPoint: Clone + Copy {
     #[allow(clippy::new_ret_no_self)]
-    /// Construct a IVec2 (impl of GridPoint)
+    /// Construct a `IVec2` (impl of `GridPoint`)
     fn new(x: i32, y: i32) -> IVec2 {
         IVec2::new(x, y)
     }
@@ -23,19 +23,19 @@ pub trait GridPoint: Clone + Copy {
         self.y() as usize * grid_width + self.x() as usize
     }
 
-    /// Convert dimensions to IVec2 (i32).
+    /// Convert dimensions to `IVec2` (i32).
     #[inline]
     fn as_ivec2(&self) -> IVec2 {
         IVec2::new(self.x(), self.y())
     }
 
-    /// Convert dimensions to UVec2 (u32).
+    /// Convert dimensions to `UVec2` (u32).
     #[inline]
     fn as_uvec2(&self) -> UVec2 {
         self.as_ivec2().as_uvec2()
     }
 
-    /// Convert dimensions to Vec2 (f32).
+    /// Convert dimensions to `Vec2` (f32).
     #[inline]
     fn as_vec2(&self) -> Vec2 {
         self.as_ivec2().as_vec2()

@@ -45,9 +45,7 @@ impl SkipperWrapper {
     fn from(mut reader: BufReader<File>) -> SkipperWrapper {
         let _ = reader.seek_relative(1);
 
-        Self {
-            reader: Rc::new(RefCell::new(reader)),
-        }
+        Self { reader: Rc::new(RefCell::new(reader)) }
     }
 
     fn skip(&self) {
@@ -85,10 +83,7 @@ pub fn read_trace(file: String) -> HashMap<String, SpanStats> {
                 open_spans.insert(s.name.clone(), s.ts);
             } else if s.ph == "E" {
                 let begin = open_spans.remove(&s.name).unwrap();
-                all_spans_stats
-                    .entry(s.name)
-                    .or_default()
-                    .add_span(s.ts - begin);
+                all_spans_stats.entry(s.name).or_default().add_span(s.ts - begin);
             }
         });
 

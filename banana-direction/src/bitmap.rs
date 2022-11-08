@@ -9,8 +9,7 @@ pub const ALL_DIRECTIONS_BITMAP_RAW: u8 = 0xff;
 
 pub const ALL_DIRECTIONS_BITMAP: DirectionBitmap =
     DirectionBitmap { raw: ALL_DIRECTIONS_BITMAP_RAW };
-pub const NO_DIRECTIONS_BITMAP: DirectionBitmap =
-    DirectionBitmap { raw: NO_DIRECTIONS_BITMAP_RAW };
+pub const NO_DIRECTIONS_BITMAP: DirectionBitmap = DirectionBitmap { raw: NO_DIRECTIONS_BITMAP_RAW };
 pub const ALL_CARDINAL_DIRECTIONS_BITMAP: DirectionBitmap =
     DirectionBitmap { raw: ALL_CARDINAL_DIRECTION_BITMAP_RAW };
 pub const ALL_ORDINAL_DIRECTIONS_BITMAP: DirectionBitmap =

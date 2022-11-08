@@ -14,7 +14,9 @@ version     = "0.1.0"
 serialize = ["serde", "banana-grid/serialize"]
 
 [dependencies]
-banana-grid  = { path = "../banana-grid" }
-banana-utils = { path = "../banana-utils" }
+banana-grid = { path = "../banana-grid", version = "0.1" }
 
 serde = { version = "1", features = ["derive"], optional = true }
+
+[dev-dependencies]
+banana-utils = { path = "../banana-utils", version = "0.1" }

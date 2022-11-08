@@ -12,13 +12,16 @@ jobs:
   build-without-default-features:
     strategy:
       matrix:
-        crate: [bloodoath, common, core, procgen, raws]
+        crate: [banana-lib, banana-geometry, banana-direction, banana-utils]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
       - uses: dtolnay/rust-toolchain@stable
+      
       - name: Install alsa and udev
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+      
       - name: Build
         run: cargo build -p ${{ matrix.crate }} --no-default-features
         env:

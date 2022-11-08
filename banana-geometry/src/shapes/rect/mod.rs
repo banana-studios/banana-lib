@@ -202,7 +202,7 @@ impl Rect {
 mod tests {
     use crate::prelude::*;
     use banana_grid::prelude::IVec2;
-    use banana_utils::*;
+    use banana_utils::Canvas;
 
     #[test]
     fn iter() {

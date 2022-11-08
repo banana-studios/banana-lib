@@ -58,9 +58,7 @@ impl<T: Copy> GridLike<T> for Grid2D<T> {
         F: FnMut(IVec2) -> T,
     {
         Self {
-            data: ndarray::Array2::from_shape_fn(size.as_uarray(), |a| {
-                f(Size2d::as_ivec2(&a))
-            }),
+            data: ndarray::Array2::from_shape_fn(size.as_uarray(), |a| f(Size2d::as_ivec2(&a))),
             size: size.as_uvec2(),
         }
     }
@@ -84,10 +82,7 @@ impl<T: Copy> GridLike<T> for Grid2D<T> {
         T: Clone,
         S: Size2d,
     {
-        Self {
-            size: size.as_uvec2(),
-            data: ndarray::Array2::from_elem(size.as_uarray(), value),
-        }
+        Self { size: size.as_uvec2(), data: ndarray::Array2::from_elem(size.as_uarray(), value) }
     }
 
     #[inline(always)]
@@ -96,10 +91,7 @@ impl<T: Copy> GridLike<T> for Grid2D<T> {
         T: Copy,
         S: Size2d,
     {
-        Self {
-            size: size.as_uvec2(),
-            data: ndarray::Array2::from_elem(size.as_uarray(), value),
-        }
+        Self { size: size.as_uvec2(), data: ndarray::Array2::from_elem(size.as_uarray(), value) }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -114,7 +106,7 @@ impl<T: Copy> GridLike<T> for Grid2D<T> {
     where
         T: Clone,
     {
-        self.data.fill(value)
+        self.data.fill(value);
     }
 
     #[inline]
@@ -297,25 +289,21 @@ impl<T: Copy> Grid2D<T> {
         T: Clone,
         F: Fn(T) -> T,
     {
-        self.data.mapv_inplace(f)
+        self.data.mapv_inplace(f);
     }
 
     pub fn map_inplace_mut<F>(&mut self, f: F)
     where
         F: Fn(&mut T),
     {
-        self.data.map_inplace(f)
+        self.data.map_inplace(f);
     }
 
     pub fn slice<I>(&self, start: I, end: I) -> ArrayView<T, Ix2>
     where
         I: GridPoint,
     {
-        let start1 = start.x() as i32;
-        let end1 = start.y() as i32;
-        let start2 = end.x() as i32;
-        let end2 = end.y() as i32;
-        self.data.slice(s![start1..end1, start2..end2])
+        self.data.slice(s![start.x()..start.y(), end.x()..end.y()])
     }
 
     pub fn row<X: TryInto<i32>>(&self, x: X) -> ArrayView<T, Ix1> {
@@ -323,8 +311,7 @@ impl<T: Copy> Grid2D<T> {
     }
 
     pub fn column<X: TryInto<i32>>(&self, y: X) -> ArrayView<T, Ix1> {
-        self.data
-            .column(y.try_into().ok().expect("Failed to convert y to column_i32") as usize)
+        self.data.column(y.try_into().ok().expect("Failed to convert y to column_i32") as usize)
     }
 }
 
@@ -364,20 +351,5 @@ impl<T: Copy, P: GridPoint> Index<P> for Grid2D<T> {
 impl<T: Copy, P: GridPoint> IndexMut<P> for Grid2D<T> {
     fn index_mut(&mut self, index: P) -> &mut Self::Output {
         &mut self.data[index.as_uarray()]
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_slice() {
-        let grid: Grid2D<i32> = Grid2D::new_fn((10, 10), |(x, y)| (x + y) as i32);
-        let slice = grid.slice::<(i32, i32)>((1, -1), (1, -1));
-
-        assert_eq!(slice.shape(), [8, 8]);
-        assert_eq!(slice.first(), Some(&2));
-        assert_eq!(slice.last(), Some(&16));
     }
 }

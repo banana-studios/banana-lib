@@ -15,7 +15,7 @@ rng       = ["rand"]
 serialize = ["serde", "banana-grid/serialize"]
 
 [dependencies]
-banana-grid = { path = "../banana-grid" }
+banana-grid = { path = "../banana-grid", version = "0.1" }
 
 rand  = { version = "0.8", optional = true }
 serde = { version = "1.0", features = ["derive"], optional = true }

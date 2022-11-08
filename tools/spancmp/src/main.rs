@@ -119,12 +119,7 @@ pub struct SpanStats {
 
 impl Default for SpanStats {
     fn default() -> Self {
-        Self {
-            count: 0,
-            avg: 0.0,
-            min: f32::MAX,
-            max: 0.0,
-        }
+        Self { count: 0, avg: 0.0, min: f32::MAX, max: 0.0 }
     }
 }
 

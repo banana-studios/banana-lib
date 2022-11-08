@@ -1,8 +1,8 @@
 use crate::prelude::*;
 use std::ops::{Bound, RangeBounds};
 
-/// The [Grid] trait abstracts over containers of [Clone] and [Copy] items laid out in a rectangle
-/// with a certain [width](Self::width) and [height](Self::height).
+/// The [Grid] trait abstracts over containers of [Clone] and [Copy] items laid out in a
+/// rectangle with a certain [width](Self::width) and [height](Self::height).
 pub trait GridLike<T> {
     fn new<S>(size: S, new_value: T) -> Self
     where
@@ -107,8 +107,7 @@ pub trait GridLike<T> {
     /// An unbounded "end" returned by this function should be treated as EXCLUSIVE.
     fn range_to_start_end(&self, range: impl RangeBounds<usize>, axis: Axis) -> [usize; 2] {
         let start = match range.start_bound() {
-            Bound::Included(start) => *start,
-            Bound::Excluded(start) => *start,
+            Bound::Included(start) | Bound::Excluded(start) => *start,
             Bound::Unbounded => 0,
         };
         let end = match range.end_bound() {
@@ -121,7 +120,7 @@ pub trait GridLike<T> {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    /// GridPoint Getters
+    // GridPoint Getters
     ///////////////////////////////////////////////////////////////////////////
 
     // No bounds Checking
@@ -141,7 +140,7 @@ pub trait GridLike<T> {
         P: GridPoint;
 
     ///////////////////////////////////////////////////////////////////////////
-    /// GridPoint Iters
+    // GridPoint Iters
     ///////////////////////////////////////////////////////////////////////////
     fn count_neighbors<P>(&self, point: P, val: T) -> usize
     where
