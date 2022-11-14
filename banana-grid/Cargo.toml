@@ -20,7 +20,7 @@ serialize = ["serde", "glam/serde", "ndarray/serde"]
 anyhow  = { version = "1.0" }
 ndarray = { version = "0.15" }
 
-bevy  = { version = "0.8", default-features = false, optional = true }
+bevy  = { version = "0.9", default-features = false, optional = true }
 glam  = { version = "0.22", optional = true }
 rayon = { version = "1", optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
